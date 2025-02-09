@@ -87,9 +87,7 @@ export function WorldMap() {
                 variant={module.completed ? "default" : "secondary"}
                 className={cn(
                   "w-16 h-16 rounded-full font-medieval text-lg relative group transition-all duration-300",
-                  module.completed
-                    ? "bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-amber-900"
-                    : "bg-gradient-to-r from-indigo-600 to-black-600 hover:from-indigo-500 hover:to-purple-500 text-purple-100",
+    "bg-gradient-to-r from-yellow-600 to-yellow-800 hover:from-yellow-700 hover:to-yellow-900 text-white"
                 )}
                 onClick={() => setSelectedModule(module.id)}
               >

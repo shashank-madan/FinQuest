@@ -140,7 +140,7 @@ export function MarketTrendsGame() {
         <p className="text-lg text-center text-purple-100">Score: {score}</p>
       </CardContent>
       <CardFooter className="justify-between">
-        <Button asChild variant="ghost">
+        <Button asChild>
           <Link href="/">Return to Realm Map</Link>
         </Button>
         {gameOver && <Button onClick={resetGame}>Play Again</Button>}
