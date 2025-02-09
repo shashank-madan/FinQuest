@@ -116,7 +116,7 @@ export function MarketTrendsGame() {
   }
 
   return (
-    <Card className="bg-indigo-950/50 backdrop-blur-sm border-purple-500/20">
+    <Card className="bg-indigo-950/50 backdrop-blur-sm border-purple-500/20 font-medieval">
       <CardHeader>
         <CardTitle className="font-medieval text-2xl text-amber-300">Market Mystic Mountains</CardTitle>
         <CardDescription className="text-purple-200">Predict market trends based on given scenarios.</CardDescription>

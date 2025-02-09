@@ -7,12 +7,12 @@ export default function Home() {
       <Card className="bg-indigo-950/50 backdrop-blur-sm border-purple-500/20">
         <CardHeader>
           <CardTitle className="font-medieval text-2xl text-amber-300">Welcome to FinanceQuest</CardTitle>
-          <CardDescription className="text-purple-200">
+          <CardDescription className="text-purple-200 font-medieval">
             Embark on your magical journey to financial wisdom
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-purple-200 mb-4">Choose a realm to begin your adventure:</p>
+          <p className="text-purple-200 mb-4 font-medieval">Choose a realm to begin your adventure:</p>
           <WorldMap />
         </CardContent>
       </Card>

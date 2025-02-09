@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 export default function RealmMap() {
   return (
     <div className="space-y-8">
-      <Card className="bg-indigo-950/50 backdrop-blur-sm border-purple-500/20">
+      <Card className="bg-indigo-950/50 backdrop-blur-sm border-purple-500/20 font-medieval">
         <CardHeader>
-          <CardTitle className="font-medieval text-2xl text-amber-300">Financial Realm Map</CardTitle>
-          <CardDescription className="text-purple-200">
+          <CardTitle className="font-medieval text-2xl text-amber-300 font-medieval">Financial Realm Map</CardTitle>
+          <CardDescription className="text-purple-200 font-medieval">
             Choose a realm to begin your financial adventure
           </CardDescription>
         </CardHeader>

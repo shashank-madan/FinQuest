@@ -108,7 +108,7 @@ export function CreditScoreGame() {
   }
 
   return (
-    <Card className="bg-indigo-950/50 backdrop-blur-sm border-purple-500/20">
+    <Card className="bg-indigo-950/50 backdrop-blur-sm border-purple-500/20 font-medieval">
       <CardHeader>
         <CardTitle className="font-medieval text-2xl text-amber-300">Crystal Credit Kingdom</CardTitle>
         <CardDescription className="text-purple-200">
@@ -118,8 +118,8 @@ export function CreditScoreGame() {
       <CardContent className="space-y-4">
         {!gameOver ? (
           <>
-            <p className="text-lg text-center text-purple-100">Round {round}/5</p>
-            <p className="text-xl text-center text-amber-300">{currentAction.action}</p>
+            <p className="text-lg text-center text-purple-100 font-medieval">Round {round}/5</p>
+            <p className="text-xl text-center text-amber-300 font-medieval">{currentAction.action}</p>
             <div className="flex justify-center space-x-4">
               <Button onClick={() => handleGuess("Increase")} variant="outline">
                 Increase
@@ -130,9 +130,9 @@ export function CreditScoreGame() {
             </div>
           </>
         ) : (
-          <p className="text-xl text-center text-amber-300">Game Over! Your final score: {score}/5</p>
+          <p className="text-xl text-center text-amber-300 font-medieval">Game Over! Your final score: {score}/5</p>
         )}
-        <p className="text-lg text-center text-purple-100">Score: {score}</p>
+        <p className="text-lg text-center text-purple-100 font-medieval">Score: {score}</p>
       </CardContent>
       <CardFooter className="justify-between">
         <Button asChild>

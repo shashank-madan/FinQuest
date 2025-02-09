@@ -87,7 +87,7 @@ export function FraudDetectionGame() {
   const [currentChapter, setCurrentChapter] = useState<string>("1")
   const [gameOutcome, setGameOutcome] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
-  const [timer, setTimer] = useState(10)
+  const [timer, setTimer] = useState(30)
   const [isTimerActive, setIsTimerActive] = useState(true)
   const [gameOver, setGameOver] = useState(false)
   const [score, setScore] = useState(0)
@@ -148,8 +148,8 @@ export function FraudDetectionGame() {
 
 
   return (
-    <div className="relative h-[600px] bg-cover bg-center border-amber-500/30 overflow-hidden shadow-xl">
-      <div className="absolute inset-0 bg-indigo-950/30 backdrop-blur-[2px]"></div>
+    <div className="relative h-[600px] bg-cover bg-center border-amber-500/30 overflow-hidden shadow-xl font-medieval">
+      <div className="absolute inset-0 bg-indigo-950/30 backdrop-blur-[2px] font-medieval"></div>
   
       <div className="h-full flex flex-col">
         {/* Progress Bar */}
