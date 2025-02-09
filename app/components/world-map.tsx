@@ -24,6 +24,14 @@ const modules = [
     icon: "⛪",
   },
   {
+    id: "fraudfall-the-guardians-of-trust",
+    title: "Fraudfall: The Guardians of Trust",
+    description: "Master the mystical arts of credit scoring",
+    position: "top-1/2 left-1/4",
+    completed: false,
+    icon: "🕵️",
+  },
+  {
     id: "risk-ruins",
     title: "Risk Ruins",
     description: "Navigate the ancient paths of risk management",
@@ -32,18 +40,10 @@ const modules = [
     icon: "🗿",
   },
   {
-    id: "fraudfall-the-guardians-of-trust",
-    title: "Fraudfall: The Guardians of Trust",
-    description: "Master the mystical arts of credit scoring",
-    position: "top-1/4 right-1/4",
-    completed: false,
-    icon: "🕵️",
-  },
-  {
     id: "asset-arcadia",
     title: "Asset Arcadia",
     description: "Channel the powers of asset allocation",
-    position: "bottom-1/4 right-1/3",
+    position: "centre-1/2",
     completed: false,
     icon: "🏛️",
   },
@@ -61,8 +61,8 @@ export function WorldMap() {
   const [selectedModule, setSelectedModule] = useState<string | null>(null)
 
   return (
-    <Card className="relative h-[600px] bg-[url('/fantasy-map-bg.svg')] bg-cover bg-center border-amber-500/30 overflow-hidden shadow-xl">
-      <div className="absolute inset-0 bg-indigo-950/30 backdrop-blur-[2px]"></div>
+    <Card className="relative h-[600px] bg-[url('/Fantasy_Map.jpg')] bg-cover bg-center border-amber-500/3">
+      <div className="absolute inset-0 bg-indigo-950/30"></div>
       <CardContent className="h-full relative">
         {/* Magical connection lines */}
         <svg className="absolute inset-0 w-full h-full">
