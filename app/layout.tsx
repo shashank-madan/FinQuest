@@ -9,6 +9,7 @@ import { Coins, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { UserAuth } from "./components/user-auth"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 const medieval = MedievalSharp({
@@ -26,9 +27,18 @@ export default function RootLayout({
   const [userCoins, setUserCoins] = useState(0)
 
   useEffect(() => {
-    const savedCoins = localStorage.getItem("userCoins")
-    if (savedCoins) {
-      setUserCoins(Number.parseInt(savedCoins, 10))
+    const updateCoins = () => {
+      const savedCoins = localStorage.getItem("userCoins")
+      if (savedCoins) {
+        setUserCoins(Number.parseInt(savedCoins, 10))
+      }
+    }
+
+    updateCoins()
+    window.addEventListener("storage", updateCoins)
+
+    return () => {
+      window.removeEventListener("storage", updateCoins)
     }
   }, [])
 
@@ -72,6 +82,7 @@ export default function RootLayout({
             </main>
           </div>
         </div>
+        <Toaster />
       </body>
     </html>
   )
