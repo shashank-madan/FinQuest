@@ -5,6 +5,7 @@ const navItems = [
   { href: "/quest-log", icon: ScrollText, label: "Quest Log" },
   { href: "/mystic-market", icon: ShoppingBag, label: "Mystic Market" },
   { href: "/hero-profile", icon: User, label: "Hero Profile" },
+  { href: "/life-quest", icon: Crown, label: "Life Quest" },
 ]
 
 export function Navigation({ isOpen }: { isOpen: boolean }) {
