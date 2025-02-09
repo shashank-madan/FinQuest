@@ -32,6 +32,14 @@ const modules = [
     icon: "🗿",
   },
   {
+    id: "fraudfall-the-guardians-of-trust",
+    title: "Fraudfall: The Guardians of Trust",
+    description: "Master the mystical arts of credit scoring",
+    position: "top-1/4 right-1/4",
+    completed: false,
+    icon: "🕵️",
+  },
+  {
     id: "asset-arcadia",
     title: "Asset Arcadia",
     description: "Channel the powers of asset allocation",

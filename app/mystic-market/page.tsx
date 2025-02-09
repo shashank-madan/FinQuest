@@ -23,6 +23,20 @@ const promoCodes: PromoCode[] = [
   { id: 10, code: "SHADOWVEIL", price: 1200 },
 ]
 
+// Map of promo codes to descriptions
+const promoDescriptions: { [key: string]: string } = {
+  "MYSTIC10": "Save 10% on your next purchase at Macy's with this exclusive discount code.",
+  "SPELL20": "Enjoy 20% off your order at Target with this limited-time promo code.",
+  "FORTUNE50": "Get 50% off select items at Best Buy for a limited time with this special offer.",
+  "LUCKYCHARM": "Use this code at Amazon to get 15% off your next purchase, no minimum required.",
+  "GOLDENRUNES": "Unlock 10% off your favorite items at Walmart with this golden opportunity.",
+  "ARCANEBOOST": "Boost your savings by 15% on select products at Home Depot with this promo code.",
+  "DARKORB": "Get an extra 20% off select items at Bed Bath & Beyond with this exclusive discount code.",
+  "CELESTIALKEY": "Save 10% on celestial-themed products at Etsy with this special code.",
+  "PHANTOMBLAZE": "Enjoy 25% off select items at Sephora with this time-sensitive promo code.",
+  "SHADOWVEIL": "Take 15% off your purchase at Nordstrom with this code, valid for a limited time only."
+};
+
 export default function MysticMarket() {
   const [coins, setCoins] = useState<number>(0)
   const [ownedCodes, setOwnedCodes] = useState<string[]>([])
@@ -69,6 +83,7 @@ export default function MysticMarket() {
                   {ownedCodes.includes(promo.code) ? promo.code : "******"}
                 </span>
                 <p className="text-purple-300">{promo.price} coins</p>
+                <p className="text-purple-300">{promoDescriptions[promo.code]}</p> {/* Display Description */}
                 <Button
                   className="mt-2 bg-amber-500 hover:bg-amber-600 text-black w-full"
                   onClick={() => buyPromoCode(promo)}
@@ -82,8 +97,8 @@ export default function MysticMarket() {
 
           {ownedCodes.length > 0 && (
             <>
-              <h2 className="text-lg text-amber-300 mt-6">Your Purchased Codes</h2>
-              <ul className="text-purple-200 mt-2 space-y-1">
+              <h2 className="text-lg text-amber-300 mt-6 font-medieval text-lg">Your Purchased Codes</h2>
+              <ul className="text-purple-200 mt-2 space-y-1 font-medieval text-lg">
                 {ownedCodes.map((code, index) => (
                   <li key={index}>✅ {code}</li>
                 ))}
@@ -93,5 +108,5 @@ export default function MysticMarket() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
