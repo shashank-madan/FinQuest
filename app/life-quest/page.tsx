@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { format } from "date-fns"
-import { CreditCardIcon, Home, Car, Smartphone, Package, Plus } from "lucide-react"
+import { CreditCardIcon, Home, Car, Smartphone, Package } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { calculateProgress, recalculateGoalProgress } from "./utils/financialCalculations"
 
 // Types
 interface PurchaseGoal {
@@ -23,6 +24,8 @@ interface PurchaseGoal {
   targetAmount: number
   currentAmount: number
   years: number
+  progress: number
+  downPayment: number
   icon: string
   helping: string[]
   hurting: string[]
@@ -59,6 +62,8 @@ const mockGoals: PurchaseGoal[] = [
     targetAmount: 500000,
     currentAmount: 200000,
     years: 5,
+    progress: 40,
+    downPayment: 300000,
     icon: "Home",
     helping: ["Regular monthly savings", "Investment returns", "Bonus allocation"],
     hurting: ["High rental expenses", "Market volatility", "Unexpected expenses"],
@@ -70,6 +75,8 @@ const mockGoals: PurchaseGoal[] = [
     targetAmount: 60000,
     currentAmount: 45000,
     years: 2,
+    progress: 100,
+    downPayment: 15000,
     icon: "Car",
     helping: ["Consistent savings", "Side gig income", "Reduced expenses"],
     hurting: ["Car maintenance costs", "Fuel expenses", "Insurance premiums"],
@@ -142,10 +149,19 @@ export default function FinanceDashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions)
   const [financials, setFinancials] = useState<UserFinancials>(mockFinancials)
 
-// Goal Card Component
+  useEffect(() => {
+    // Recalculate all goals whenever financials or transactions change
+    const recentExpenses = transactions.slice(0, 5).reduce((sum, t) => sum + t.amount, 0)
+    setGoals((prevGoals) =>
+      prevGoals.map((goal) =>
+        recalculateGoalProgress(goal, financials.creditScore, financials.bankBalance, recentExpenses),
+      ),
+    )
+  }, [financials, transactions])
+
+  // Goal Card Component
   function GoalCard({ goal }: { goal: PurchaseGoal }) {
     const [isOpen, setIsOpen] = useState(false)
-    const progress = Math.round((goal.currentAmount / goal.targetAmount) * 100)
     const IconComponent = icons[goal.type as keyof typeof icons]
 
     return (
@@ -163,8 +179,8 @@ export default function FinanceDashboard() {
               <p className="text-purple-200">Target: ${goal.targetAmount.toLocaleString()}</p>
             </div>
           </div>
-          <Progress value={progress} className="h-2 bg-purple-950" />
-          <p className="mt-2 text-sm text-purple-200">Progress: {progress}%</p>
+          <Progress value={goal.progress} className="h-2 bg-purple-950" />
+          <p className="mt-2 text-sm text-purple-200">Progress: {goal.progress}%</p>
         </div>
 
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -207,19 +223,36 @@ export default function FinanceDashboard() {
     const [open, setOpen] = useState(false)
     const form = useForm<z.infer<typeof goalFormSchema>>({
       resolver: zodResolver(goalFormSchema),
+      defaultValues: {
+        type: "Home",
+        cost: "",
+        years: "",
+        title: "",
+      },
     })
 
     function onSubmit(values: z.infer<typeof goalFormSchema>) {
+      const cost = Number.parseFloat(values.cost)
+      const recentExpenses = transactions.slice(0, 5).reduce((sum, t) => sum + t.amount, 0)
+      const { progress, downPayment } = calculateProgress(
+        cost,
+        financials.creditScore,
+        financials.bankBalance,
+        recentExpenses,
+      )
+
       const newGoal: PurchaseGoal = {
         id: Math.random().toString(),
         title: values.title,
         type: values.type,
-        targetAmount: Number.parseFloat(values.cost),
-        currentAmount: 0,
+        targetAmount: cost,
+        currentAmount: (progress / 100) * cost,
         years: Number.parseInt(values.years),
+        progress,
+        downPayment,
         icon: values.type,
-        helping: [],
-        hurting: [],
+        helping: ["New goal added"],
+        hurting: ["Initial progress based on current finances"],
       }
       setGoals([...goals, newGoal])
       setOpen(false)
@@ -247,7 +280,7 @@ export default function FinanceDashboard() {
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                     <FormLabel className="font-medieval">What would you like to buy?</FormLabel>
+                    <FormLabel className="font-medieval">What would you like to buy?</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-[#2D2A5D] border-purple-700 font-medieval">
@@ -270,7 +303,7 @@ export default function FinanceDashboard() {
                 name="cost"
                 render={({ field }) => (
                   <FormItem>
-                     <FormLabel className="font-medieval">What is the cost of purchase?</FormLabel>
+                    <FormLabel className="font-medieval">What is the cost of purchase?</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter amount in $"
@@ -288,7 +321,7 @@ export default function FinanceDashboard() {
                 name="years"
                 render={({ field }) => (
                   <FormItem>
-                     <FormLabel className="font-medieval">In how many years do you want to make the purchase?</FormLabel>
+                    <FormLabel className="font-medieval">In how many years do you want to make the purchase?</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Enter number of years"
@@ -306,9 +339,13 @@ export default function FinanceDashboard() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                     <FormLabel className="font-medieval">Give a title for the purchase</FormLabel>
+                    <FormLabel className="font-medieval">Give a title for the purchase</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter title" className="bg-[#2D2A5D] border-purple-700 font-medieval" {...field} />
+                      <Input
+                        placeholder="Enter title"
+                        className="bg-[#2D2A5D] border-purple-700 font-medieval"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -329,6 +366,12 @@ export default function FinanceDashboard() {
     const [open, setOpenCard] = useState(false)
     const form = useForm<z.infer<typeof cardFormSchema>>({
       resolver: zodResolver(cardFormSchema),
+      defaultValues: {
+        cardNumber: "",
+        name: "",
+        expiry: "",
+        cvv: "",
+      },
     })
 
     function onSubmit(values: z.infer<typeof cardFormSchema>) {
@@ -363,9 +406,13 @@ export default function FinanceDashboard() {
                 name="cardNumber"
                 render={({ field }) => (
                   <FormItem>
-                     <FormLabel className="font-medieval">Card Number</FormLabel>
+                    <FormLabel className="font-medieval">Card Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="1234 5678 9012 3456" className="bg-[#2D2A5D] border-purple-700 font-medieval" {...field} />
+                      <Input
+                        placeholder="1234 5678 9012 3456"
+                        className="bg-[#2D2A5D] border-purple-700 font-medieval"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -376,7 +423,7 @@ export default function FinanceDashboard() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                     <FormLabel className="font-medieval">Cardholder Name</FormLabel>
+                    <FormLabel className="font-medieval">Cardholder Name</FormLabel>
                     <FormControl>
                       <Input placeholder="John Doe" className="bg-[#2D2A5D] border-purple-700" {...field} />
                     </FormControl>
@@ -390,9 +437,13 @@ export default function FinanceDashboard() {
                   name="expiry"
                   render={({ field }) => (
                     <FormItem>
-                       <FormLabel className="font-medieval">Expiry Date</FormLabel>
+                      <FormLabel className="font-medieval">Expiry Date</FormLabel>
                       <FormControl>
-                        <Input placeholder="MM/YY" className="bg-[#2D2A5D] border-purple-700 font-medieval" {...field} />
+                        <Input
+                          placeholder="MM/YY"
+                          className="bg-[#2D2A5D] border-purple-700 font-medieval"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -403,7 +454,7 @@ export default function FinanceDashboard() {
                   name="cvv"
                   render={({ field }) => (
                     <FormItem>
-                       <FormLabel className="font-medieval">CVV</FormLabel>
+                      <FormLabel className="font-medieval">CVV</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="123"
@@ -432,6 +483,12 @@ export default function FinanceDashboard() {
     const [open, setOpenExpense] = useState(false)
     const form = useForm<z.infer<typeof expenseFormSchema>>({
       resolver: zodResolver(expenseFormSchema),
+      defaultValues: {
+        item: "",
+        amount: "",
+        category: "",
+        date: new Date().toISOString().split("T")[0], // Set default date to today
+      },
     })
 
     function onSubmit(values: z.infer<typeof expenseFormSchema>) {
@@ -443,6 +500,10 @@ export default function FinanceDashboard() {
         date: new Date(values.date),
       }
       setTransactions([newExpense, ...transactions])
+      setFinancials((prev) => ({
+        ...prev,
+        bankBalance: prev.bankBalance - newExpense.amount,
+      }))
       setOpenExpense(false)
       form.reset()
     }
@@ -470,7 +531,11 @@ export default function FinanceDashboard() {
                   <FormItem>
                     <FormLabel className="font-medieval">Item Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter item name" className="bg-[#2D2A5D] border-purple-700 font-medieval" {...field} />
+                      <Input
+                        placeholder="Enter item name"
+                        className="bg-[#2D2A5D] border-purple-700 font-medieval"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -541,6 +606,30 @@ export default function FinanceDashboard() {
     )
   }
 
+  function generateFinancialAdvice() {
+    const creditScore = financials.creditScore
+    const recentPurchases = transactions.slice(0, 5)
+
+    let advice = ""
+    if (creditScore < 600) {
+      advice += "Your credit score is low. Consider paying off existing debts and avoiding new credit applications. "
+    } else if (creditScore < 700) {
+      advice += "Your credit score is fair. Keep making timely payments to improve it further. "
+    } else {
+      advice += "Your credit score is good. Keep up the great work! "
+    }
+
+    const totalRecentSpending = recentPurchases.reduce((sum, transaction) => sum + transaction.amount, 0)
+    if (totalRecentSpending > financials.bankBalance * 0.5) {
+      advice +=
+        "Your recent spending is high relative to your bank balance. Consider cutting back on non-essential expenses. "
+    } else {
+      advice += "Your recent spending seems reasonable compared to your bank balance. "
+    }
+
+    return advice
+  }
+
   return (
     <div className="font-medieval text-purple-100">
       <header className="border-b border-purple-500/20 bg-indigo-950/50 backdrop-blur-sm">
@@ -586,12 +675,19 @@ export default function FinanceDashboard() {
       <main className="container mx-auto px-4 py-8">
         <div className="grid gap-8">
           <section>
-            <h2 className="text-xl font-semibold mb-4 text-amber-300">Purchase Quests</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-amber-300">Purchase Quests</h2>
+            </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {goals.map((goal) => (
                 <GoalCard key={goal.id} goal={goal} />
               ))}
             </div>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold mb-4 text-amber-300">Financial Advice</h2>
+            <p className="text-purple-200 bg-purple-800/40 p-4 rounded-lg">{generateFinancialAdvice()}</p>
           </section>
 
           <section>
@@ -626,3 +722,4 @@ export default function FinanceDashboard() {
     </div>
   )
 }
+
