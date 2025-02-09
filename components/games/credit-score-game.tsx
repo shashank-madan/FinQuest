@@ -53,11 +53,18 @@ export function CreditScoreGame() {
   const [currentAction, setCurrentAction] = useState(actions[0])
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
+  const [gameOver, setGameOver] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
     const shuffled = [...actions].sort(() => 0.5 - Math.random())
     setCurrentAction(shuffled[round - 1])
+  }, [round])
+
+  useEffect(() => {
+    if (round > 5) {
+      endGame()
+    }
   }, [round])
 
   const handleGuess = (guess: string) => {
@@ -75,18 +82,29 @@ export function CreditScoreGame() {
       })
     }
 
-    if (round < 5) {
-      setRound(round + 1)
-    } else {
-      // Game over logic
-      const earnedCoins = score * 10
-      const newTotalCoins = (Number.parseInt(localStorage.getItem("userCoins") || "0", 10) + earnedCoins).toString()
-      localStorage.setItem("userCoins", newTotalCoins)
-      toast({
-        title: "Game Over!",
-        description: `Your final score is ${score + (guess === currentAction.impact ? 1 : 0)} out of 5. You earned ${earnedCoins} coins!`,
-      })
-    }
+    setRound(round + 1)
+  }
+
+  const endGame = () => {
+    setGameOver(true)
+    const earnedCoins = score * 10
+    const currentCoins = Number.parseInt(localStorage.getItem("userCoins") || "0", 10)
+    const newTotalCoins = currentCoins + earnedCoins
+    localStorage.setItem("userCoins", newTotalCoins.toString())
+
+    // Trigger a custom event to update the coin display in the layout
+    window.dispatchEvent(new Event("coinsUpdated"))
+
+    toast({
+      title: "Game Over!",
+      description: `Your final score is ${score} out of 5. You earned ${earnedCoins} coins!`,
+    })
+  }
+
+  const resetGame = () => {
+    setScore(0)
+    setRound(1)
+    setGameOver(false)
   }
 
   return (
@@ -98,32 +116,29 @@ export function CreditScoreGame() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-lg text-center text-purple-100">Round {round}/5</p>
-        <p className="text-xl text-center text-amber-300">{currentAction.action}</p>
-        <div className="flex justify-center space-x-4">
-          <Button onClick={() => handleGuess("Increase")} variant="outline">
-            Increase
-          </Button>
-          <Button onClick={() => handleGuess("Decrease")} variant="outline">
-            Decrease
-          </Button>
-        </div>
+        {!gameOver ? (
+          <>
+            <p className="text-lg text-center text-purple-100">Round {round}/5</p>
+            <p className="text-xl text-center text-amber-300">{currentAction.action}</p>
+            <div className="flex justify-center space-x-4">
+              <Button onClick={() => handleGuess("Increase")} variant="outline">
+                Increase
+              </Button>
+              <Button onClick={() => handleGuess("Decrease")} variant="outline">
+                Decrease
+              </Button>
+            </div>
+          </>
+        ) : (
+          <p className="text-xl text-center text-amber-300">Game Over! Your final score: {score}/5</p>
+        )}
         <p className="text-lg text-center text-purple-100">Score: {score}</p>
       </CardContent>
       <CardFooter className="justify-between">
         <Button asChild variant="ghost">
           <Link href="/">Return to Realm Map</Link>
         </Button>
-        {round > 5 && (
-          <Button
-            onClick={() => {
-              setRound(1)
-              setScore(0)
-            }}
-          >
-            Play Again
-          </Button>
-        )}
+        {gameOver && <Button onClick={resetGame}>Play Again</Button>}
       </CardFooter>
     </Card>
   )

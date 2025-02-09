@@ -42,12 +42,19 @@ export function AssetAllocationGame() {
   const [allocation, setAllocation] = useState([25, 25, 25, 25])
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
+  const [gameOver, setGameOver] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
     const shuffled = [...scenarios].sort(() => 0.5 - Math.random())
     setCurrentScenario(shuffled[round - 1])
     setAllocation([25, 25, 25, 25])
+  }, [round])
+
+  useEffect(() => {
+    if (round > 5) {
+      endGame()
+    }
   }, [round])
 
   const handleAllocationChange = (index: number, value: number) => {
@@ -77,19 +84,29 @@ export function AssetAllocationGame() {
       variant: points > 0 ? "default" : "destructive",
     })
 
-    if (round < 5) {
-      setRound(round + 1)
-    } else {
-      // Game over logic
-      const earnedCoins = score * 10
-      const newTotalCoins = (Number.parseInt(localStorage.getItem("userCoins") || "0", 10) + earnedCoins).toString()
-      localStorage.setItem("userCoins", newTotalCoins)
-      toast({
-        title: "Game Over!",
-        description: `Your final score is ${score + points} out of 15. You earned ${earnedCoins} coins!`,
-        variant: "default",
-      })
-    }
+    setRound(round + 1)
+  }
+
+  const endGame = () => {
+    setGameOver(true)
+    const earnedCoins = score * 10
+    const currentCoins = Number.parseInt(localStorage.getItem("userCoins") || "0", 10)
+    const newTotalCoins = currentCoins + earnedCoins
+    localStorage.setItem("userCoins", newTotalCoins.toString())
+
+    // Trigger a custom event to update the coin display in the layout
+    window.dispatchEvent(new Event("coinsUpdated"))
+
+    toast({
+      title: "Game Over!",
+      description: `Your final score is ${score} out of 15. You earned ${earnedCoins} coins!`,
+    })
+  }
+
+  const resetGame = () => {
+    setScore(0)
+    setRound(1)
+    setGameOver(false)
   }
 
   return (
@@ -101,42 +118,39 @@ export function AssetAllocationGame() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-lg text-center text-purple-100">Round {round}/5</p>
-        <p className="text-xl text-center text-amber-300">Scenario: {currentScenario.name}</p>
-        <div className="space-y-4">
-          {assetClasses.map((asset, index) => (
-            <div key={asset}>
-              <p className="text-purple-200">
-                {asset}: {allocation[index]}%
-              </p>
-              <Slider
-                value={[allocation[index]]}
-                onValueChange={(value) => handleAllocationChange(index, value[0])}
-                max={100}
-                step={1}
-              />
+        {!gameOver ? (
+          <>
+            <p className="text-lg text-center text-purple-100">Round {round}/5</p>
+            <p className="text-xl text-center text-amber-300">Scenario: {currentScenario.name}</p>
+            <div className="space-y-4">
+              {assetClasses.map((asset, index) => (
+                <div key={asset}>
+                  <p className="text-purple-200">
+                    {asset}: {allocation[index]}%
+                  </p>
+                  <Slider
+                    value={[allocation[index]]}
+                    onValueChange={(value) => handleAllocationChange(index, value[0])}
+                    max={100}
+                    step={1}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <Button onClick={handleSubmit} className="w-full">
-          Submit Allocation
-        </Button>
+            <Button onClick={handleSubmit} className="w-full">
+              Submit Allocation
+            </Button>
+          </>
+        ) : (
+          <p className="text-xl text-center text-amber-300">Game Over! Your final score: {score}/15</p>
+        )}
         <p className="text-lg text-center text-purple-100">Score: {score}</p>
       </CardContent>
       <CardFooter className="justify-between">
         <Button asChild variant="ghost">
           <Link href="/">Return to Realm Map</Link>
         </Button>
-        {round > 5 && (
-          <Button
-            onClick={() => {
-              setRound(1)
-              setScore(0)
-            }}
-          >
-            Play Again
-          </Button>
-        )}
+        {gameOver && <Button onClick={resetGame}>Play Again</Button>}
       </CardFooter>
     </Card>
   )

@@ -36,9 +36,11 @@ export default function RootLayout({
 
     updateCoins()
     window.addEventListener("storage", updateCoins)
+    window.addEventListener("coinsUpdated", updateCoins)
 
     return () => {
       window.removeEventListener("storage", updateCoins)
+      window.removeEventListener("coinsUpdated", updateCoins)
     }
   }, [])
 

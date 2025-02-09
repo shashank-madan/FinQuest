@@ -29,6 +29,7 @@ export function TaxBracketGame() {
   const [options, setOptions] = useState<string[]>([])
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
+  const [gameOver, setGameOver] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -39,13 +40,18 @@ export function TaxBracketGame() {
     setOptions(shuffledRates.slice(0, 4))
   }, [round])
 
+  useEffect(() => {
+    if (round > 5) {
+      endGame()
+    }
+  }, [round])
+
   const handleGuess = (guess: string) => {
     if (guess === currentBracket.rate) {
       setScore(score + 1)
       toast({
         title: "Correct!",
         description: `The tax rate for income ${currentBracket.income} is ${currentBracket.rate}. ${currentBracket.explanation}`,
-        variant: "default",
       })
     } else {
       toast({
@@ -55,19 +61,29 @@ export function TaxBracketGame() {
       })
     }
 
-    if (round < 5) {
-      setRound(round + 1)
-    } else {
-      // Game over logic
-      const earnedCoins = score * 10
-      const newTotalCoins = (Number.parseInt(localStorage.getItem("userCoins") || "0", 10) + earnedCoins).toString()
-      localStorage.setItem("userCoins", newTotalCoins)
-      toast({
-        title: "Game Over!",
-        description: `Your final score is ${score + (guess === currentBracket.rate ? 1 : 0)} out of 5. You earned ${earnedCoins} coins!`,
-        variant: "default",
-      })
-    }
+    setRound(round + 1)
+  }
+
+  const endGame = () => {
+    setGameOver(true)
+    const earnedCoins = score * 10
+    const currentCoins = Number.parseInt(localStorage.getItem("userCoins") || "0", 10)
+    const newTotalCoins = currentCoins + earnedCoins
+    localStorage.setItem("userCoins", newTotalCoins.toString())
+
+    // Trigger a custom event to update the coin display in the layout
+    window.dispatchEvent(new Event("coinsUpdated"))
+
+    toast({
+      title: "Game Over!",
+      description: `Your final score is ${score} out of 5. You earned ${earnedCoins} coins!`,
+    })
+  }
+
+  const resetGame = () => {
+    setScore(0)
+    setRound(1)
+    setGameOver(false)
   }
 
   return (
@@ -79,31 +95,28 @@ export function TaxBracketGame() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-lg text-center text-purple-100">Round {round}/5</p>
-        <p className="text-xl text-center text-amber-300">Income: {currentBracket.income}</p>
-        <div className="grid grid-cols-2 gap-4">
-          {options.map((rate, index) => (
-            <Button key={index} onClick={() => handleGuess(rate)} variant="outline">
-              {rate}
-            </Button>
-          ))}
-        </div>
+        {!gameOver ? (
+          <>
+            <p className="text-lg text-center text-purple-100">Round {round}/5</p>
+            <p className="text-xl text-center text-amber-300">Income: {currentBracket.income}</p>
+            <div className="grid grid-cols-2 gap-4">
+              {options.map((rate, index) => (
+                <Button key={index} onClick={() => handleGuess(rate)} variant="outline">
+                  {rate}
+                </Button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="text-xl text-center text-amber-300">Game Over! Your final score: {score}/5</p>
+        )}
         <p className="text-lg text-center text-purple-100">Score: {score}</p>
       </CardContent>
       <CardFooter className="justify-between">
         <Button asChild variant="ghost">
           <Link href="/">Return to Realm Map</Link>
         </Button>
-        {round > 5 && (
-          <Button
-            onClick={() => {
-              setRound(1)
-              setScore(0)
-            }}
-          >
-            Play Again
-          </Button>
-        )}
+        {gameOver && <Button onClick={resetGame}>Play Again</Button>}
       </CardFooter>
     </Card>
   )

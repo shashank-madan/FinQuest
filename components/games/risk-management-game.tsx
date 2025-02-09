@@ -48,6 +48,7 @@ export function RiskManagementGame() {
   const [rewardLevel, setRewardLevel] = useState(50)
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
+  const [gameOver, setGameOver] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -55,6 +56,12 @@ export function RiskManagementGame() {
     setCurrentScenario(shuffled[round - 1])
     setRiskLevel(50)
     setRewardLevel(50)
+  }, [round])
+
+  useEffect(() => {
+    if (round > 5) {
+      endGame()
+    }
   }, [round])
 
   const handleSubmit = () => {
@@ -75,19 +82,29 @@ export function RiskManagementGame() {
       variant: points > 0 ? "default" : "destructive",
     })
 
-    if (round < 5) {
-      setRound(round + 1)
-    } else {
-      // Game over logic
-      const earnedCoins = score * 10
-      const newTotalCoins = (Number.parseInt(localStorage.getItem("userCoins") || "0", 10) + earnedCoins).toString()
-      localStorage.setItem("userCoins", newTotalCoins)
-      toast({
-        title: "Game Over!",
-        description: `Your final score is ${score + points} out of 15. You earned ${earnedCoins} coins!`,
-        variant: "default",
-      })
-    }
+    setRound(round + 1)
+  }
+
+  const endGame = () => {
+    setGameOver(true)
+    const earnedCoins = score * 10
+    const currentCoins = Number.parseInt(localStorage.getItem("userCoins") || "0", 10)
+    const newTotalCoins = currentCoins + earnedCoins
+    localStorage.setItem("userCoins", newTotalCoins.toString())
+
+    // Trigger a custom event to update the coin display in the layout
+    window.dispatchEvent(new Event("coinsUpdated"))
+
+    toast({
+      title: "Game Over!",
+      description: `Your final score is ${score} out of 15. You earned ${earnedCoins} coins!`,
+    })
+  }
+
+  const resetGame = () => {
+    setScore(0)
+    setRound(1)
+    setGameOver(false)
   }
 
   return (
@@ -99,37 +116,34 @@ export function RiskManagementGame() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-lg text-center text-purple-100">Round {round}/5</p>
-        <p className="text-xl text-center text-amber-300">Scenario: {currentScenario.name}</p>
-        <div className="space-y-4">
-          <div>
-            <p className="text-purple-200">Risk Level: {riskLevel}</p>
-            <Slider value={[riskLevel]} onValueChange={(value) => setRiskLevel(value[0])} max={100} step={1} />
-          </div>
-          <div>
-            <p className="text-purple-200">Reward Level: {rewardLevel}</p>
-            <Slider value={[rewardLevel]} onValueChange={(value) => setRewardLevel(value[0])} max={100} step={1} />
-          </div>
-        </div>
-        <Button onClick={handleSubmit} className="w-full">
-          Submit Balance
-        </Button>
+        {!gameOver ? (
+          <>
+            <p className="text-lg text-center text-purple-100">Round {round}/5</p>
+            <p className="text-xl text-center text-amber-300">Scenario: {currentScenario.name}</p>
+            <div className="space-y-4">
+              <div>
+                <p className="text-purple-200">Risk Level: {riskLevel}</p>
+                <Slider value={[riskLevel]} onValueChange={(value) => setRiskLevel(value[0])} max={100} step={1} />
+              </div>
+              <div>
+                <p className="text-purple-200">Reward Level: {rewardLevel}</p>
+                <Slider value={[rewardLevel]} onValueChange={(value) => setRewardLevel(value[0])} max={100} step={1} />
+              </div>
+            </div>
+            <Button onClick={handleSubmit} className="w-full">
+              Submit Balance
+            </Button>
+          </>
+        ) : (
+          <p className="text-xl text-center text-amber-300">Game Over! Your final score: {score}/15</p>
+        )}
         <p className="text-lg text-center text-purple-100">Score: {score}</p>
       </CardContent>
       <CardFooter className="justify-between">
         <Button asChild variant="ghost">
           <Link href="/">Return to Realm Map</Link>
         </Button>
-        {round > 5 && (
-          <Button
-            onClick={() => {
-              setRound(1)
-              setScore(0)
-            }}
-          >
-            Play Again
-          </Button>
-        )}
+        {gameOver && <Button onClick={resetGame}>Play Again</Button>}
       </CardFooter>
     </Card>
   )

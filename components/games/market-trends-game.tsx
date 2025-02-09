@@ -59,6 +59,7 @@ export function MarketTrendsGame() {
   const [options, setOptions] = useState<string[]>([])
   const [score, setScore] = useState(0)
   const [round, setRound] = useState(1)
+  const [gameOver, setGameOver] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -68,13 +69,18 @@ export function MarketTrendsGame() {
     setOptions(shuffledPredictions.slice(0, 4))
   }, [round])
 
+  useEffect(() => {
+    if (round > 5) {
+      endGame()
+    }
+  }, [round])
+
   const handleGuess = (guess: string) => {
     if (guess === currentTrend.correctPrediction) {
       setScore(score + 1)
       toast({
         title: "Correct!",
         description: `Your prediction was accurate. ${currentTrend.explanation}`,
-        variant: "default",
       })
     } else {
       toast({
@@ -84,19 +90,29 @@ export function MarketTrendsGame() {
       })
     }
 
-    if (round < 5) {
-      setRound(round + 1)
-    } else {
-      // Game over logic
-      const earnedCoins = score * 10
-      const newTotalCoins = (Number.parseInt(localStorage.getItem("userCoins") || "0", 10) + earnedCoins).toString()
-      localStorage.setItem("userCoins", newTotalCoins)
-      toast({
-        title: "Game Over!",
-        description: `Your final score is ${score + (guess === currentTrend.correctPrediction ? 1 : 0)} out of 5. You earned ${earnedCoins} coins!`,
-        variant: "default",
-      })
-    }
+    setRound(round + 1)
+  }
+
+  const endGame = () => {
+    setGameOver(true)
+    const earnedCoins = score * 10
+    const currentCoins = Number.parseInt(localStorage.getItem("userCoins") || "0", 10)
+    const newTotalCoins = currentCoins + earnedCoins
+    localStorage.setItem("userCoins", newTotalCoins.toString())
+
+    // Trigger a custom event to update the coin display in the layout
+    window.dispatchEvent(new Event("coinsUpdated"))
+
+    toast({
+      title: "Game Over!",
+      description: `Your final score is ${score} out of 5. You earned ${earnedCoins} coins!`,
+    })
+  }
+
+  const resetGame = () => {
+    setScore(0)
+    setRound(1)
+    setGameOver(false)
   }
 
   return (
@@ -106,31 +122,28 @@ export function MarketTrendsGame() {
         <CardDescription className="text-purple-200">Predict market trends based on given scenarios.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-lg text-center text-purple-100">Round {round}/5</p>
-        <p className="text-xl text-center text-amber-300">{currentTrend.description}</p>
-        <div className="grid grid-cols-2 gap-4">
-          {options.map((prediction, index) => (
-            <Button key={index} onClick={() => handleGuess(prediction)} variant="outline">
-              {prediction}
-            </Button>
-          ))}
-        </div>
+        {!gameOver ? (
+          <>
+            <p className="text-lg text-center text-purple-100">Round {round}/5</p>
+            <p className="text-xl text-center text-amber-300">{currentTrend.description}</p>
+            <div className="grid grid-cols-2 gap-4">
+              {options.map((prediction, index) => (
+                <Button key={index} onClick={() => handleGuess(prediction)} variant="outline">
+                  {prediction}
+                </Button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="text-xl text-center text-amber-300">Game Over! Your final score: {score}/5</p>
+        )}
         <p className="text-lg text-center text-purple-100">Score: {score}</p>
       </CardContent>
       <CardFooter className="justify-between">
         <Button asChild variant="ghost">
           <Link href="/">Return to Realm Map</Link>
         </Button>
-        {round > 5 && (
-          <Button
-            onClick={() => {
-              setRound(1)
-              setScore(0)
-            }}
-          >
-            Play Again
-          </Button>
-        )}
+        {gameOver && <Button onClick={resetGame}>Play Again</Button>}
       </CardFooter>
     </Card>
   )
