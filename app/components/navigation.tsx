@@ -2,7 +2,6 @@ import Link from "next/link"
 import { Crown, ScrollText, ShoppingBag, User } from "lucide-react"
 
 const navItems = [
-  { href: "/heroes-hall", icon: Crown, label: "Heroes' Hall" },
   { href: "/quest-log", icon: ScrollText, label: "Quest Log" },
   { href: "/mystic-market", icon: ShoppingBag, label: "Mystic Market" },
   { href: "/hero-profile", icon: User, label: "Hero Profile" },
