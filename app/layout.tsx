@@ -60,7 +60,7 @@ export default function RootLayout({
                     <Coins className="h-8 w-8 text-amber-400" />
                     <div className="absolute inset-0 animate-pulse-glow"></div>
                   </div>
-                  {isNavOpen && <h1 className="text-2xl font-medieval text-amber-300">FinanceQuest</h1>}
+                  {isNavOpen && <h1 className="text-2xl font-medieval text-amber-300">FinQuest</h1>}
                 </Link>
               </div>
               <Navigation isOpen={isNavOpen} />
@@ -77,7 +77,7 @@ export default function RootLayout({
                   </div>
                   <span className="text-amber-300 font-medieval">{userCoins}</span>
                 </div>
-                <h1 className="text-2xl font-medieval text-amber-300">Welcome, Sir Goldsworth </h1>
+                <h1 className="text-2xl font-medieval text-amber-300">Welcome back, Sir Goldsworth </h1>
               </div>
               {children}
             </main>

@@ -66,7 +66,7 @@ const mockGoals: PurchaseGoal[] = [
     downPayment: 300000,
     icon: "Home",
     helping: ["Regular monthly savings", "Investment returns", "Bonus allocation"],
-    hurting: ["High rental expenses", "Market volatility", "Unexpected expenses"],
+    hurting: ["High rental expenses", "Insurance premiums", "Fuel expenses"],
   },
   {
     id: "2",
@@ -79,7 +79,7 @@ const mockGoals: PurchaseGoal[] = [
     downPayment: 15000,
     icon: "Car",
     helping: ["Consistent savings", "Side gig income", "Reduced expenses"],
-    hurting: ["Car maintenance costs", "Fuel expenses", "Insurance premiums"],
+    hurting: ["Nil"],
   },
 ]
 
@@ -97,6 +97,34 @@ const mockTransactions: Transaction[] = [
     amount: 15.99,
     category: "Entertainment",
     date: new Date("2025-02-07"),
+  },
+    {
+    id: "3",
+    item: "Movie Ticket",
+    amount: 12.79,
+    category: "Other",
+    date: new Date("2025-02-06"),
+  },
+    {
+    id: "4",
+    item: "Fuel",
+    amount: 45.99,
+    category: "Transportation",
+    date: new Date("2025-02-04"),
+  },
+    {
+    id: "5",
+    item: "Insurance Premium",
+    amount: 150.29,
+    category: "Other",
+    date: new Date("2025-02-03"),
+  },
+    {
+    id: "5",
+    item: "Monthly Rental",
+    amount: 1050.75,
+    category: "Other",
+    date: new Date("2025-02-02"),
   },
 ]
 

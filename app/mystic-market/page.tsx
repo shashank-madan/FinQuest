@@ -26,7 +26,7 @@ const promoCodes: PromoCode[] = [
 // Map of promo codes to descriptions
 const promoDescriptions: { [key: string]: string } = {
   "MYSTIC10": "Save 10% on your next purchase at Macy's with this exclusive discount code.",
-  "SPELL20": "Enjoy 20% off your order at Target with this limited-time promo code.",
+  "SPELL20": "Enjoy 20% off your order at Target with this limited-time promo code.                 ",
   "FORTUNE50": "Get 50% off select items at Best Buy for a limited time with this special offer.",
   "LUCKYCHARM": "Use this code at Amazon to get 15% off your next purchase, no minimum required.",
   "GOLDENRUNES": "Unlock 10% off your favorite items at Walmart with this golden opportunity.",
