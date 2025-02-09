@@ -19,7 +19,7 @@ const modules = [
     id: "treasury-temple",
     title: "Treasury Temple",
     description: "Unlock the secrets of taxation",
-    position: "top-1/3 right-1/4",
+    position: "top-1/3 right-1/3",
     completed: false,
     icon: "⛪",
   },
@@ -27,7 +27,7 @@ const modules = [
     id: "fraudfall-the-guardians-of-trust",
     title: "Fraudfall: The Guardians of Trust",
     description: "Master the mystical arts of credit scoring",
-    position: "top-1/2 right-1/4",
+    position: "top-1/4 left-1/2",
     completed: false,
     icon: "🕵️",
   },
@@ -61,8 +61,8 @@ export function WorldMap() {
   const [selectedModule, setSelectedModule] = useState<string | null>(null)
 
   return (
-    <Card className="relative h-[600px] bg-[url('/fantasy-map-bg.svg')] bg-cover bg-center border-amber-500/30 overflow-hidden shadow-xl">
-      <div className="absolute inset-0 bg-indigo-950/30 backdrop-blur-[2px]"></div>
+    <Card className="relative h-[600px] bg-[url('/Fantasy_Map.jpg')] bg-cover bg-center border-amber-500/30 ">
+      <div className="absolute inset-0 bg-indigo-950/30"></div>
       <CardContent className="h-full relative">
         {/* Magical connection lines */}
         <svg className="absolute inset-0 w-full h-full">
@@ -89,7 +89,7 @@ export function WorldMap() {
                   "w-16 h-16 rounded-full font-medieval text-lg relative group transition-all duration-300",
                   module.completed
                     ? "bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-amber-900"
-                    : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-purple-100",
+                    : "bg-gradient-to-r from-indigo-600 to-black-600 hover:from-indigo-500 hover:to-purple-500 text-purple-100",
                 )}
                 onClick={() => setSelectedModule(module.id)}
               >
