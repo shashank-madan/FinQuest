@@ -8,7 +8,6 @@ import { Navigation } from "./components/navigation"
 import { Coins, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { UserAuth } from "./components/user-auth"
 import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -78,7 +77,7 @@ export default function RootLayout({
                   </div>
                   <span className="text-amber-300 font-medieval">{userCoins}</span>
                 </div>
-                <UserAuth />
+                <h1 className="text-2xl font-medieval text-amber-300">Welcome, Sir Goldsworth </h1>
               </div>
               {children}
             </main>
