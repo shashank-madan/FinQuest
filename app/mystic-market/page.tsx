@@ -231,7 +231,7 @@ export default function MysticMarket() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="font-medieval">
       <Card className="bg-indigo-950/50 backdrop-blur-sm border-purple-500/20">
         <CardHeader>
           <CardTitle className="font-medieval text-2xl text-amber-300">Mystic Market</CardTitle>
